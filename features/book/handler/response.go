@@ -54,11 +54,11 @@ func ListBookCoreToBookRespon(dataCore book.Core) BookResponse { // data user co
 		Pemilik:     dataCore.Pemilik,
 	}
 }
-func ListBookCoreToBooksRespon(dataCore []book.Core) []BookResponse { //data user.core data yang diambil dari entities ke respon struct
+func ListBookCoreToBooksRespon(dataCore []book.Core) []BookResponse {
 	var ResponData []BookResponse
 
-	for _, value := range dataCore { //memanggil paramete data core yang berisi data user core
-		ResponData = append(ResponData, ListBookCoreToBookRespon(value)) // mengambil data mapping dari user core to respon
+	for _, value := range dataCore {
+		ResponData = append(ResponData, ListBookCoreToBookRespon(value))
 	}
 	return ResponData
 }

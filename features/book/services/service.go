@@ -16,6 +16,8 @@ type bookSrv struct {
 	validasi *validator.Validate
 }
 
+// Delete implements book.BookService
+
 // Update implements book.BookService
 
 func New(d book.BookData) book.BookService {
@@ -86,17 +88,38 @@ func (bs *bookSrv) Update(token interface{}, bookID int, updatedData book.Core) 
 }
 
 // All implements book.BookService
-func (bs *bookSrv) All() ([]book.Core, error) {
-	All, err := bs.data.All()
+func (bs *bookSrv) AllBook() ([]book.Core, error) {
+	All, err := bs.data.AllBook()
 	fmt.Println("ini service", All)
 
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
 			msg = "Book not found"
+		} else {
+			msg = "internal server error"
 		}
-		return nil, errors.New(msg)
+		return []book.Core{}, errors.New(msg)
 	}
 
 	return All, nil
+}
+func (bs *bookSrv) Delete(token interface{}, bookID int) error {
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		return errors.New("user not found")
+	}
+
+	err := bs.data.Delete(userID, bookID)
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "Book not found"
+		} else {
+			msg = "internal server error"
+
+		}
+		return errors.New(msg)
+	}
+	return nil
 }

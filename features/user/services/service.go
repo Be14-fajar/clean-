@@ -82,7 +82,7 @@ func (uuc *userUseCase) Profile(token interface{}) (user.Core, error) {
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "data tidak ditemukan"
+			msg = "not found"
 		} else {
 			msg = "terdapat masalah pada server"
 		}
@@ -102,9 +102,9 @@ func (uuc *userUseCase) Update(id uint, updateData user.Core) (user.Core, error)
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "data tidak ditemukan"
+			msg = "not found"
 		} else {
-			msg = "terdapat masalah pada server"
+			msg = "internal server error"
 		}
 		return user.Core{}, errors.New(msg)
 	}

@@ -13,6 +13,8 @@ type bookData struct {
 	db *gorm.DB
 }
 
+// Delete implements book.BookData
+
 func New(db *gorm.DB) book.BookData {
 	return &bookData{
 		db: db,
@@ -51,7 +53,7 @@ func (bd *bookData) Update(bookID int, updatedData book.Core) (book.Core, error)
 //		return nil
 //	}
 func (bd *bookData) MyBook(userID int) ([]book.Core, error) {
-	myBooks := []BookPemilik{}
+	var myBooks []BookPemilik
 	err := bd.db.Raw("SELECT books.id, books.judul, books.tahun_terbit, books.penulis, users.name FROM books JOIN users ON users.id = books.user_id WHERE books.user_id = ?", userID).Find(&myBooks).Error
 	if err != nil {
 		return nil, err
@@ -63,16 +65,30 @@ func (bd *bookData) MyBook(userID int) ([]book.Core, error) {
 }
 
 // All implements book.BookData
-func (bd *bookData) All() ([]book.Core, error) {
+func (bd *bookData) AllBook() ([]book.Core, error) {
 	var buku []BookPemilik
 	fmt.Println("ini query", buku)
-	// tx := bd.db.Model(&buku).Select("books.id, books.judul, books.tahun_terbit, books.penulis, users.name").Joins("users on users.id = books.user_id").Where("books.user_id").Find(buku)
-	tx := bd.db.Select("books.id, books.judul, books.tahun_terbit, books.penulis, users.name FROM books JOIN users ON users.id = books.user_id WHERE books.user_id ").Find(buku)
-	if tx != nil {
+	tx := bd.db.Raw("SELECT books.id, books.judul, books.tahun_terbit, books.penulis, users.name FROM books JOIN users ON users.id = books.user_id WHERE books.deleted_at IS NULL").Unscoped().Find(&buku)
+
+	fmt.Println("ini TX", tx)
+	if tx.Error != nil {
 		return nil, tx.Error
 	}
 	var dataCore = ListModelTOCore(buku)
-	fmt.Println("ini data core", dataCore)
 
 	return dataCore, nil
+}
+func (bd *bookData) Delete(userID int, bookID int) error {
+	buku := Books{}
+	del := bd.db.Where("id = ? AND user_id = ?", bookID, userID).Delete(&buku, bookID)
+	if del.Error != nil {
+		log.Println("delete book query error :", del.Error)
+		return del.Error
+	}
+	if del.RowsAffected <= 0 {
+		log.Println("delete book query error : data not found")
+		return errors.New("not found")
+	}
+
+	return nil
 }

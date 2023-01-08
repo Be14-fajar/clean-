@@ -73,16 +73,30 @@ func (bh *bookHandle) MyBook() echo.HandlerFunc {
 
 		listRes := ListBookCoreToBooksRespon(res)
 
-		return c.JSON(http.StatusOK, listRes)
+		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "sukses menampilkan user buku", listRes))
 	}
 }
-func (bh *bookHandle) All() echo.HandlerFunc {
+func (bh *bookHandle) AllBook() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		result, _ := bh.srv.All()
+		result, _ := bh.srv.AllBook()
 
 		listRes := ListBookCoreToBooksRespon(result)
 		fmt.Println("ini handler", listRes)
-		return c.JSON(http.StatusOK, listRes)
+		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "sukses menampilkan  buku", listRes))
 	}
 
+}
+
+// Delete implements book.BookHandler
+func (bh *bookHandle) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		bookID, _ := strconv.Atoi(c.Param("id"))
+
+		del := bh.srv.Delete(c.Get("user"), bookID)
+		if del != nil {
+			return c.JSON(helper.PrintErrorResponse(del.Error()))
+		}
+
+		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "sukses menghapus buku"))
+	}
 }

@@ -74,6 +74,11 @@ func (uq *userQuery) Deactive(id uint) (user.Core, error) {
 		log.Println("Get By ID query error", delete.Error.Error())
 		return user.Core{}, delete.Error
 	}
+	
+	if delete.RowsAffected < 0 {
+		log.Println("Rows affected delete error")
+		return user.Core{}, errors.New("user not found")
+	}
 
 	return ToCore(users), nil
 }

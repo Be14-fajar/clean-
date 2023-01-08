@@ -40,9 +40,10 @@ func main() {
 	e.PUT("/users/:id", userHdl.Update())
 	e.DELETE("/users/:id", userHdl.Deactive())
 
-	e.GET("/books", bookHdl.All())
+	e.GET("/books", bookHdl.AllBook())
 	e.POST("/books", bookHdl.Add(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.PUT("/books/:id", bookHdl.Update(), middleware.JWT([]byte(config.JWT_KEY)))
+	e.DELETE("/books/:id", bookHdl.Delete(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.GET("/user/books", bookHdl.MyBook(), middleware.JWT([]byte(config.JWT_KEY)))
 	if err := e.Start(":8000"); err != nil {
 		log.Println(err.Error())
