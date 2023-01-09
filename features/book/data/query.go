@@ -68,7 +68,7 @@ func (bd *bookData) MyBook(userID int) ([]book.Core, error) {
 func (bd *bookData) AllBook() ([]book.Core, error) {
 	var buku []BookPemilik
 	fmt.Println("ini query", buku)
-	tx := bd.db.Raw("SELECT books.id, books.judul, books.tahun_terbit, books.penulis, users.name FROM books JOIN users ON users.id = books.user_id WHERE books.deleted_at IS NULL").Unscoped().Find(&buku)
+	tx := bd.db.Raw("SELECT books.id, books.judul, books.tahun_terbit, books.penulis, users.name FROM books JOIN users ON users.id = books.user_id WHERE books.deleted_at IS NULL").Find(&buku)
 
 	fmt.Println("ini TX", tx)
 	if tx.Error != nil {
