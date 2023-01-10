@@ -45,7 +45,7 @@ func (bs *bookSrv) Add(token interface{}, newBook book.Core) (book.Core, error) 
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "user not found"
+			msg = "Book not found"
 		} else {
 			msg = "internal server error"
 		}
