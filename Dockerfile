@@ -1,15 +1,16 @@
-FROM golang:1.19.4-alpine as build
+FROM golang:1.19-alpine
 
-# membuat direktori app
+##buat folder APP
 RUN mkdir /app
 
-# set working directory /app
+##set direktori utama
 WORKDIR /app
 
-ADD ./app
+##copy seluruh file ke app
+ADD . /app
 
-RUN go mod tidy
+##buat executeable
+RUN go build -o belajar .
 
-RUN go build -o belajar
-
-CMD ["/app/belajar"]
+##jalankan executeable
+CMD ["/app/main"]
