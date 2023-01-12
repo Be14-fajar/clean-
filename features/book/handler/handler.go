@@ -48,21 +48,23 @@ func (bh *bookHandle) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		input := AddUpdateBookRequest{}
 		if err := c.Bind(&input); err != nil {
-			return c.JSON(http.StatusBadRequest, "format inputan salah")
+			return c.JSON(helper.PrintErrorResponse(err.Error()))
 		}
-		cnv := *ToCore(input)
+		cnv := ToCore(input)
 
-		id, _ := strconv.Atoi(c.Param("id"))
-
-		res, err := bh.srv.Update(c.Get("user"), id, cnv) //->ke service
+		bookID, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			log.Println("trouble :  ", err.Error())
+			return c.JSON(helper.PrintErrorResponse(err.Error()))
+		}
+
+		res, err := bh.srv.Update(c.Get("user"), bookID, *cnv)
+		if err != nil {
 			return c.JSON(helper.PrintErrorResponse(err.Error()))
 		}
 
 		book := ToResponse("update", res)
 
-		return c.JSON(helper.PrintSuccessReponse(http.StatusCreated, "sukses mnegupdate buku", book))
+		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "sukses mengubah buku", book))
 	}
 }
 

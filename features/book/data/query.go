@@ -33,20 +33,24 @@ func (bd *bookData) Add(userID int, newBook book.Core) (book.Core, error) {
 
 	return newBook, nil
 }
-func (bd *bookData) Update(bookID int, updatedData book.Core) (book.Core, error) {
-	BooksModel := CoreToData(updatedData)
-	BooksModel.ID = uint(bookID)
+func (bd *bookData) Update(userID int, bookID int, updatedData book.Core) (book.Core, error) {
+	cnv := CoreToData(updatedData)
 
-	Input := bd.db.Where("id = ?", bookID).Updates(&BooksModel)
-	if Input.Error != nil {
-		log.Println("Get By ID query error", Input.Error.Error())
-		return book.Core{}, Input.Error
-	}
-	if Input.RowsAffected <= 0 {
-		return book.Core{}, errors.New("Not found")
+	// DB Update(value)
+	tx := bd.db.Where("id = ? && user_id = ?", bookID, userID).Updates(&cnv)
+	if tx.Error != nil {
+		log.Println("update book query error :", tx.Error)
+		return book.Core{}, tx.Error
 	}
 
-	return ToCore(BooksModel), nil
+	// Rows affected checking
+	if tx.RowsAffected <= 0 {
+		log.Println("update book query error : data not found")
+		return book.Core{}, errors.New("not found")
+	}
+
+	// return result converting cnv to book.Core
+	return ToCore(cnv), nil
 }
 
 //	func (bd *bookData) Delete(bookID int, userID int) error {

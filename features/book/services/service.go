@@ -67,24 +67,26 @@ func (bs *bookSrv) MyBook(token interface{}) ([]book.Core, error) {
 	return res, nil
 }
 func (bs *bookSrv) Update(token interface{}, bookID int, updatedData book.Core) (book.Core, error) {
-
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		return book.Core{}, errors.New("id user not found")
+	}
 	if validasieror := bs.validasi.Struct(updatedData); validasieror != nil {
 		return book.Core{}, nil
 	}
 
-	updatedDatas, err := bs.data.Update(bookID, updatedData)
-
+	res, err := bs.data.Update(userID, bookID, updatedData)
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "Book not found"
+			msg = "book or user not found"
 		} else {
 			msg = "internal server error"
 		}
 		return book.Core{}, errors.New(msg)
 	}
 
-	return updatedDatas, nil
+	return res, nil
 }
 
 // All implements book.BookService
@@ -99,7 +101,7 @@ func (bs *bookSrv) AllBook() ([]book.Core, error) {
 		} else {
 			msg = "internal server error"
 		}
-		return []book.Core{}, errors.New(msg)
+		return nil, errors.New(msg)
 	}
 
 	return All, nil
