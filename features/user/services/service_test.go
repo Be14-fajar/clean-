@@ -60,12 +60,12 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("Login error password doesnt match", func(t *testing.T) {
-		inputEmail := "helmi@gmail.com"
-		hashed, _ := helper.GeneratePassword("helmi")
-		resData := user.Core{ID: uint(1), Name: "helmi", Email: "helmi@gmail.com", HP: "08123456", Password: hashed}
+		inputEmail := "jerry@alterra.id"
+		hashed, _ := helper.GeneratePassword("be1422")
+		resData := user.Core{ID: uint(1), Name: "helmi", Email: "jerry@alterra.id", HP: "08123456", Password: hashed}
 		repo.On("Login", inputEmail).Return(resData, nil).Once()
 		srv := New(repo)
-		token, res, err := srv.Login(inputEmail, "muzakir")
+		token, res, err := srv.Login(inputEmail, "asal")
 
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "password tidak sesuai")
