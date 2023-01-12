@@ -33,24 +33,24 @@ func ReadEnv() *AppConfig {
 		app.jwtKey = val
 		isRead = false
 	}
-	if val, found := os.LookupEnv("DBUser"); found {
+	if val, found := os.LookupEnv("DBUSER"); found {
 		app.DBUser = val
 		isRead = false
 	}
-	if val, found := os.LookupEnv("DBPass"); found {
+	if val, found := os.LookupEnv("DBPASS"); found {
 		app.DBPass = val
 		isRead = false
 	}
-	if val, found := os.LookupEnv("DBHost"); found {
+	if val, found := os.LookupEnv("DBHOST"); found {
 		app.DBHost = val
 		isRead = false
 	}
-	if val, found := os.LookupEnv("DBPort"); found {
+	if val, found := os.LookupEnv("DBPORT"); found {
 		cnv, _ := strconv.Atoi(val)
 		app.DBPort = cnv
 		isRead = false
 	}
-	if val, found := os.LookupEnv("DBName"); found {
+	if val, found := os.LookupEnv("DBNAME"); found {
 		app.DBName = val
 		isRead = false
 	}
