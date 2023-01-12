@@ -54,7 +54,7 @@ func (bh *bookHandle) Update() echo.HandlerFunc {
 
 		id, _ := strconv.Atoi(c.Param("id"))
 
-		res, err := bh.srv.Update(c.Get("user"), id, cnv)
+		res, err := bh.srv.Update(c.Get("user"), id, cnv) //->ke service
 		if err != nil {
 			log.Println("trouble :  ", err.Error())
 			return c.JSON(helper.PrintErrorResponse(err.Error()))

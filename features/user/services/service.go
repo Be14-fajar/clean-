@@ -83,18 +83,18 @@ func (uuc *userUseCase) Profile(token interface{}) (user.Core, error) {
 	return res, nil
 }
 
-func (uuc *userUseCase) Update(id uint, updateData user.Core) (user.Core, error) {
-	hashed, err := helper.GeneratePassword(updateData.Password)
-	if err != nil {
-		log.Println("bcrypt error ", err.Error())
-		return user.Core{}, errors.New("password process error")
+func (uuc *userUseCase) Update(token interface{}, updateData user.Core) (user.Core, error) {
+	id := helper.ExtractToken(token)
+	if id <= 0 {
+		return user.Core{}, errors.New("invalid user id")
 	}
-	updateData.Password = string(hashed)
-	res, err := uuc.qry.Update(id, updateData)
+	hashed, err := helper.GeneratePassword(updateData.Password)
+	updateData.Password = hashed
+	res, err := uuc.qry.Update(uint(id), updateData)
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "user not found"
+			msg = "data user not found"
 		} else {
 			msg = "internal server error"
 		}
@@ -104,8 +104,12 @@ func (uuc *userUseCase) Update(id uint, updateData user.Core) (user.Core, error)
 }
 
 // Deactive implements user.UserService
-func (uuc *userUseCase) Deactive(id uint) (user.Core, error) {
-	data, err := uuc.qry.Deactive(id)
+func (uuc *userUseCase) Deactive(token interface{}) (user.Core, error) {
+	id := helper.ExtractToken(token)
+	if id <= 0 {
+		return user.Core{}, errors.New("id user not found")
+	}
+	data, err := uuc.qry.Deactive(uint(id))
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {

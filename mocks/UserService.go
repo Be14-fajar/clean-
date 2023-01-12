@@ -13,20 +13,20 @@ type UserService struct {
 	mock.Mock
 }
 
-// Deactive provides a mock function with given fields: id
-func (_m *UserService) Deactive(id uint) (user.Core, error) {
-	ret := _m.Called(id)
+// Deactive provides a mock function with given fields: token
+func (_m *UserService) Deactive(token interface{}) (user.Core, error) {
+	ret := _m.Called(token)
 
 	var r0 user.Core
-	if rf, ok := ret.Get(0).(func(uint) user.Core); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(interface{}) user.Core); ok {
+		r0 = rf(token)
 	} else {
 		r0 = ret.Get(0).(user.Core)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
+		r1 = rf(token)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -104,20 +104,20 @@ func (_m *UserService) Register(newUser user.Core) (user.Core, error) {
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: id, updateData
-func (_m *UserService) Update(id uint, updateData user.Core) (user.Core, error) {
-	ret := _m.Called(id, updateData)
+// Update provides a mock function with given fields: token, updateData
+func (_m *UserService) Update(token interface{}, updateData user.Core) (user.Core, error) {
+	ret := _m.Called(token, updateData)
 
 	var r0 user.Core
-	if rf, ok := ret.Get(0).(func(uint, user.Core) user.Core); ok {
-		r0 = rf(id, updateData)
+	if rf, ok := ret.Get(0).(func(interface{}, user.Core) user.Core); ok {
+		r0 = rf(token, updateData)
 	} else {
 		r0 = ret.Get(0).(user.Core)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uint, user.Core) error); ok {
-		r1 = rf(id, updateData)
+	if rf, ok := ret.Get(1).(func(interface{}, user.Core) error); ok {
+		r1 = rf(token, updateData)
 	} else {
 		r1 = ret.Error(1)
 	}

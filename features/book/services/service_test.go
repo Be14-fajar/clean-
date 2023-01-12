@@ -75,7 +75,7 @@ func TestAdd(t *testing.T) {
 		res, err := srv.Add(token, Input)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "user not found")
-		assert.Equal(t, uint(0), res.ID)
+		assert.Equal(t, uint(0), res.ID) //perbandingan
 	})
 	t.Run("validation error", func(t *testing.T) {
 		type SampleUsers struct {
@@ -163,5 +163,55 @@ func TestAdd(t *testing.T) {
 		assert.ErrorContains(t, err, "server")
 		assert.Equal(t, uint(0), res.ID)
 		data.AssertExpectations(t)
+	})
+}
+
+func TestAllBook(t *testing.T) {
+	data := mocks.NewBookData(t)
+
+	t.Run("Berhasil Melihat semua Buku", func(t *testing.T) {
+
+		type SampleUsers struct {
+			ID   int
+			Name string
+		}
+		sample := SampleUsers{
+			ID:   1,
+			Name: "fajar1411",
+		}
+		Respon := []book.Core{
+			{
+				ID:          1,
+				Judul:       "Naruto",
+				Penulis:     "Masashi Kishimoto",
+				TahunTerbit: 2000,
+				Pemilik:     sample.Name,
+			},
+			{
+				ID:          2,
+				Judul:       "Boruto",
+				Penulis:     "Masashi Kishimoto",
+				TahunTerbit: 20020,
+				Pemilik:     sample.Name,
+			},
+			{
+				ID:          3,
+				Judul:       "One piece",
+				Penulis:     "Oda sensei",
+				TahunTerbit: 1999,
+				Pemilik:     sample.Name,
+			},
+		}
+		data.On("AllBook").Return(Respon, nil).Once()
+		svc := New(data)
+		actual, err := svc.AllBook()
+		assert.Nil(t, err)
+		assert.Equal(t, Respon[0].ID, actual[0].ID)
+		assert.Equal(t, Respon[0].Judul, actual[0].Judul)
+		assert.Equal(t, Respon[0].Pemilik, actual[0].Pemilik)
+		assert.Equal(t, Respon[1].ID, actual[1].ID)
+		assert.Equal(t, Respon[1].Pemilik, actual[1].Pemilik)
+		assert.Equal(t, Respon[2].ID, actual[2].ID)
+		assert.Equal(t, Respon[2].Pemilik, actual[2].Pemilik)
 	})
 }

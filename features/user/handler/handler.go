@@ -3,7 +3,6 @@ package handler
 import (
 	"api/features/user"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -64,14 +63,13 @@ func (uc *userControll) Profile() echo.HandlerFunc {
 // Update implements user.UserHandler
 func (uc *userControll) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, _ := strconv.Atoi(c.Param("id"))
 
 		input := UpdateRequest{}
 		if err := c.Bind(&input); err != nil {
 			return c.JSON(http.StatusBadRequest, "format inputan salah")
 		}
 		dataCore := *ToCore(input)
-		res, err := uc.srv.Update(uint(id), dataCore)
+		res, err := uc.srv.Update(c.Get("user"), dataCore)
 
 		if err != nil {
 			return c.JSON(PrintErrorResponse(err.Error()))
@@ -84,9 +82,8 @@ func (uc *userControll) Update() echo.HandlerFunc {
 // Deactive implements user.UserHandler
 func (uc *userControll) Deactive() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, _ := strconv.Atoi(c.Param("id"))
 
-		res, err := uc.srv.Deactive(uint(id))
+		res, err := uc.srv.Deactive(c.Get("user"))
 
 		if err != nil {
 			return c.JSON(PrintErrorResponse(err.Error()))

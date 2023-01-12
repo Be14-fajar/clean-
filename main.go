@@ -37,8 +37,8 @@ func main() {
 	e.POST("/register", userHdl.Register())
 	e.POST("/login", userHdl.Login())
 	e.GET("/users", userHdl.Profile(), middleware.JWT([]byte(config.JWT_KEY)))
-	e.PUT("/users/:id", userHdl.Update())
-	e.DELETE("/users/:id", userHdl.Deactive())
+	e.PUT("/users", userHdl.Update(), middleware.JWT([]byte(config.JWT_KEY)))
+	e.DELETE("/users", userHdl.Deactive(), middleware.JWT([]byte(config.JWT_KEY)))
 
 	e.GET("/books", bookHdl.AllBook())
 	e.POST("/books", bookHdl.Add(), middleware.JWT([]byte(config.JWT_KEY)))
