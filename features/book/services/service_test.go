@@ -168,7 +168,7 @@ func TestAdd(t *testing.T) {
 
 func TestAllBook(t *testing.T) {
 	data := mocks.NewBookData(t)
-
+	svc := New(data)
 	t.Run("Berhasil Melihat semua Buku", func(t *testing.T) {
 
 		type SampleUsers struct {
@@ -213,5 +213,219 @@ func TestAllBook(t *testing.T) {
 		assert.Equal(t, Respon[1].Pemilik, actual[1].Pemilik)
 		assert.Equal(t, Respon[2].ID, actual[2].ID)
 		assert.Equal(t, Respon[2].Pemilik, actual[2].Pemilik)
+	})
+
+	// Case: user ingin melihat list buku yang, tetapi buku tidak ada buku yang ditemukan
+	t.Run(" all book not found", func(t *testing.T) {
+		// Programming input and return repo
+		data.On("AllBook").Return(nil, errors.New("Book not found")).Once()
+
+		// Program service
+		actual, err := svc.AllBook()
+
+		// Test
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "Book not found")
+		assert.Nil(t, actual)
+
+	})
+	t.Run("Get all book error server", func(t *testing.T) {
+		// Programming input and return repo
+		data.On("AllBook").Return([]book.Core{}, errors.New("internal server error")).Once()
+
+		// Program service
+		actual, err := svc.AllBook()
+
+		// Test
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, "internal server error")
+		assert.Nil(t, actual)
+
+	})
+}
+func TestUpdateBook(t *testing.T) {
+	input := book.Core{Judul: "One Piece"}
+	resData := book.Core{
+		ID:      1,
+		Judul:   "Naruto",
+		Penulis: "Masashi Kishimoto",
+		Pemilik: "fajar",
+	}
+
+	repo := mocks.NewBookData(t)
+
+	srv := New(repo)
+
+	t.Run("Update successfully", func(t *testing.T) {
+		repo.On("Update", 1, 1, input).Return(resData, nil).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		actual, err := srv.Update(token, 1, input)
+
+		assert.Nil(t, err)
+		assert.Equal(t, resData.Judul, actual.Judul)
+		assert.Equal(t, resData.ID, actual.ID)
+		assert.Equal(t, resData.Pemilik, actual.Pemilik)
+
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("Update error user not found", func(t *testing.T) {
+
+		token := jwt.New(jwt.SigningMethodHS256)
+		actual, err := srv.Update(token, 1, input)
+
+		// Test
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "id user not found")
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Update error invalid", func(t *testing.T) {
+		input := book.Core{
+			Judul:       "nar",
+			Penulis:     "mas",
+			TahunTerbit: 2000,
+		}
+
+		// Program service
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		actual, err := srv.Update(token, 1, input)
+
+		// Test
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "input update book invalid")
+		assert.Empty(t, actual)
+	})
+
+	t.Run("Update error book not found", func(t *testing.T) {
+		// Programming input and return repo
+		repo.On("Update", 1, 1, input).Return(book.Core{}, errors.New("not found")).Once()
+
+		// Program service
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		actual, err := srv.Update(token, 1, input)
+
+		// Test
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "Book not found")
+		assert.Empty(t, actual)
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("Update error internal server", func(t *testing.T) {
+		// Programming input and return repo
+		repo.On("Update", 1, 1, input).Return(book.Core{}, errors.New("internal server error")).Once()
+
+		// Program service
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		actual, err := srv.Update(token, 1, input)
+
+		// Test
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "internal server error")
+		assert.Empty(t, actual)
+		repo.AssertExpectations(t)
+	})
+}
+func TestDeleteBook(t *testing.T) {
+	repo := mocks.NewBookData(t)
+
+	srv := New(repo)
+	t.Run("Delete Success", func(t *testing.T) {
+		repo.On("Delete", 1, 1).Return(nil).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		err := srv.Delete(token, 1)
+
+		assert.Nil(t, err)
+
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("Delete Error", func(t *testing.T) {
+		repo.On("Delete", 1, 1).Return(errors.New("user id not found")).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		err := srv.Delete(token, 1)
+
+		assert.NotNil(t, err)
+
+		repo.AssertExpectations(t)
+	})
+	t.Run("Delete Error", func(t *testing.T) {
+		repo.On("Delete", 1, 1).Return(errors.New("Book not found")).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		err := srv.Delete(token, 1)
+
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "Book not found")
+		repo.AssertExpectations(t)
+	})
+	t.Run("Delete server error", func(t *testing.T) {
+		repo.On("Delete", 1, 1).Return(errors.New("internal server error")).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		err := srv.Delete(token, 1)
+
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		repo.AssertExpectations(t)
+	})
+}
+
+func TestMyBook(t *testing.T) {
+	repo := mocks.NewBookData(t)
+
+	srv := New(repo)
+
+	// Case: user ingin melihat list buku yang dimilikinya
+	t.Run("MyBook list succesfully", func(t *testing.T) {
+		resData := []book.Core{
+			{
+				ID:          1,
+				Judul:       "Naruto",
+				Penulis:     "Masashi Kishimoto",
+				TahunTerbit: 1999,
+			},
+			{
+				ID:          2,
+				Judul:       "Dragon ball",
+				Penulis:     "Akira toriyama",
+				TahunTerbit: 1998,
+			},
+		}
+
+		// Programming input and return repo
+		repo.On("MyBook", 1).Return(resData, nil).Once()
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+		actual, err := srv.MyBook(token)
+
+		// Test
+		assert.Nil(t, err)
+		assert.Equal(t, resData[0].ID, actual[0].ID)
+		assert.Equal(t, resData[0].Judul, actual[0].Judul)
+		assert.Equal(t, resData[1].ID, actual[1].ID)
+		assert.Equal(t, resData[1].Judul, actual[1].Judul)
 	})
 }

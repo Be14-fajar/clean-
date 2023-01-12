@@ -114,6 +114,8 @@ func (uuc *userUseCase) Deactive(token interface{}) (user.Core, error) {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
 			msg = "data tidak ditemukan"
+		} else {
+			msg = "internal server error"
 		}
 		return user.Core{}, errors.New(msg)
 	}

@@ -94,20 +94,20 @@ func (_m *BookData) MyBook(userID int) ([]book.Core, error) {
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: bookID, updatedData
-func (_m *BookData) Update(bookID int, updatedData book.Core) (book.Core, error) {
-	ret := _m.Called(bookID, updatedData)
+// Update provides a mock function with given fields: userID, bookID, updatedData
+func (_m *BookData) Update(userID int, bookID int, updatedData book.Core) (book.Core, error) {
+	ret := _m.Called(userID, bookID, updatedData)
 
 	var r0 book.Core
-	if rf, ok := ret.Get(0).(func(int, book.Core) book.Core); ok {
-		r0 = rf(bookID, updatedData)
+	if rf, ok := ret.Get(0).(func(int, int, book.Core) book.Core); ok {
+		r0 = rf(userID, bookID, updatedData)
 	} else {
 		r0 = ret.Get(0).(book.Core)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, book.Core) error); ok {
-		r1 = rf(bookID, updatedData)
+	if rf, ok := ret.Get(1).(func(int, int, book.Core) error); ok {
+		r1 = rf(userID, bookID, updatedData)
 	} else {
 		r1 = ret.Error(1)
 	}
